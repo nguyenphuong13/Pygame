@@ -1,28 +1,34 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Apr 22 08:13:06 2021
+
+@author: DELL
+"""
+
 import pygame
 import os
 import time
 import random
 pygame.font.init()
-
-WIDTH, HEIGHT = 750, 750
+WIDTH, HEIGHT = 800, 800
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Space Shooter Tutorial")
+pygame.display.set_caption("World of Spaceship")
 
-# Load images
-RED_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_red_small.png"))
-GREEN_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_green_small.png"))
-BLUE_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_blue_small.png"))
+#Load Images
+RED_SPACE_SHIP = pygame.image.load(os.path.join("assets", "boss.png"))
+GREEN_SPACE_SHIP = pygame.image.load(os.path.join("assets", "creep1.png"))
+BLUE_SPACE_SHIP = pygame.image.load(os.path.join("assets", "creep2.png"))
 
-# Player player
-YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("assets", "pixel_ship_yellow.png"))
+#Player
+YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("assets", "player.png"))
 
-# Lasers
+#Lasers
 RED_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_red.png"))
 GREEN_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_green.png"))
 BLUE_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_blue.png"))
 YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"))
 
-# Background
+#Background
 BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")), (WIDTH, HEIGHT))
 
 class Laser:
