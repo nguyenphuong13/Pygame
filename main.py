@@ -10,6 +10,7 @@ import os
 import time
 import random
 from pygame import mixer
+
 pygame.mixer.init()
 pygame.font.init()
 WIDTH, HEIGHT = 800, 800
@@ -121,6 +122,8 @@ class Player(Ship):
                 for obj in objs:
                     if laser.collision(obj):
                         objs.remove(obj)
+                        explosion_Sound=mixer.Sound('explosion.wav')
+                        explosion_Sound.play()
                         if laser in self.lasers:
                             self.lasers.remove(laser)
 
@@ -168,7 +171,7 @@ def main():
     lives = 5
     main_font = pygame.font.SysFont("comicsans", 50)
     lost_font = pygame.font.SysFont("comicsans", 60)
-
+    i=0
     enemies = []
     wave_length = 5
     enemy_vel = 1
@@ -279,14 +282,22 @@ def main():
             player.y += player_vel
         if keys[pygame.K_SPACE]:
             player.shoot()
+            bullet_sound=mixer.Sound('laser.wav')
+            bullet_sound.play()
+            
         if keys[pygame.K_ESCAPE]:
             game_pause=True
             gamepause()
         if keys[pygame.K_m]:
-            mixer.music.stop()
+            mixer.music.pause()
+        if keys[pygame.K_n]:
+            mixer.music.unpause()   
+           
+
         for enemy in enemies[:]:
             enemy.move(enemy_vel)
             enemy.move_lasers(laser_vel, player)
+            
 
             if random.randrange(0, 2*60) == 1:
                 enemy.shoot()
