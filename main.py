@@ -20,6 +20,8 @@ pygame.display.set_caption("World of Spaceship")
 game_pause=True
 
 #Load Images
+arr = os.listdir("assets")
+print(arr)
 RED_SPACE_SHIP = pygame.image.load(os.path.join("assets", "boss.png"))
 GREEN_SPACE_SHIP = pygame.image.load(os.path.join("assets", "creep1.png"))
 BLUE_SPACE_SHIP = pygame.image.load(os.path.join("assets", "creep2.png"))
@@ -28,15 +30,16 @@ BLUE_SPACE_SHIP = pygame.image.load(os.path.join("assets", "creep2.png"))
 YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("assets", "player.png"))
 
 #Lasers
-RED_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_red.png"))
-GREEN_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_green.png"))
-BLUE_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_blue.png"))
-YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"))
+RED_LASER = pygame.image.load(os.path.join("assets", "boss_beam.png"))
+GREEN_LASER = pygame.image.load(os.path.join("assets", "grn_beam.png"))
+BLUE_LASER = pygame.image.load(os.path.join("assets", "cyan_beam.png"))
+YELLOW_LASER = pygame.image.load(os.path.join("assets", "yel_beam.png"))
+
 
 #Background
 BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "vutru.jpg")), (WIDTH, HEIGHT))
-mixer.music.load("musicback.wav")
-mixer.music.play(-1)
+#mixer.music.load("musicback.wav")
+#mixer.music.play(-1)
 
 class Laser:
     def __init__(self, x, y, img):
