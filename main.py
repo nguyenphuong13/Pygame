@@ -9,10 +9,14 @@ import pygame
 import os
 import time
 import random
+from pygame import mixer
+pygame.mixer.init()
 pygame.font.init()
 WIDTH, HEIGHT = 800, 800
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+gameDisplay = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("World of Spaceship")
+game_pause=True
 
 #Load Images
 RED_SPACE_SHIP = pygame.image.load(os.path.join("assets", "boss.png"))
@@ -30,6 +34,8 @@ YELLOW_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"
 
 #Background
 BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "vutru.jpg")), (WIDTH, HEIGHT))
+mixer.music.load("musicback.wav")
+mixer.music.play(-1)
 
 class Laser:
     def __init__(self, x, y, img):
@@ -149,6 +155,7 @@ class Enemy(Ship):
             self.cool_down_counter = 1
 
 
+
 def collide(obj1, obj2):
     offset_x = obj2.x - obj1.x
     offset_y = obj2.y - obj1.y
@@ -175,7 +182,8 @@ def main():
 
     lost = False
     lost_count = 0
-
+    
+    
     def redraw_window():
         WIN.blit(BG, (0,0))
         # draw text
@@ -195,7 +203,46 @@ def main():
             WIN.blit(lost_label, (WIDTH/2 - lost_label.get_width()/2, 350))
 
         pygame.display.update()
+    def text_objects(text,font):
+        textsurface=font.render(text,True,"black")
+        return textsurface,textsurface.get_rect()
 
+    def button(msg,x,y,w,h,ic,ac,action=None):
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        print(click)
+        if x+w > mouse[0] > x and y+h > mouse[1] > y:
+            pygame.draw.rect(gameDisplay, ac,(x,y,w,h))
+            if click[0] == 1 and action != None:
+                action()         
+        else:
+            pygame.draw.rect(gameDisplay, ic,(x,y,w,h))
+        smallText = pygame.font.SysFont("comicsansms",20)
+        textSurf, textRect = text_objects(msg, smallText)
+        textRect.center = ( (x+(w/2)), (y+(h/2)) )
+        gameDisplay.blit(textSurf, textRect)
+    
+    def gamepause():
+          global game_pause
+          while game_pause:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()          
+            largeText = pygame.font.SysFont("comicsansms",115)
+            TextSurf, TextRect = text_objects("Paused", largeText)
+            TextRect.center = ((WIDTH/2),(HEIGHT/2))
+            gameDisplay.blit(TextSurf, TextRect)
+            button("Continue",150,450,100,50,"green","green",unpause)
+            button("Quit",550,450,100,50,"red","red",quitgame)
+            pygame.display.update()
+           
+
+    def quitgame():
+        pygame.quit()
+    def unpause():
+        game_pause=False
+    
     while run:
         clock.tick(FPS)
         redraw_window()
@@ -232,7 +279,11 @@ def main():
             player.y += player_vel
         if keys[pygame.K_SPACE]:
             player.shoot()
-
+        if keys[pygame.K_ESCAPE]:
+            game_pause=True
+            gamepause()
+        if keys[pygame.K_m]:
+            mixer.music.stop()
         for enemy in enemies[:]:
             enemy.move(enemy_vel)
             enemy.move_lasers(laser_vel, player)
@@ -251,6 +302,8 @@ def main():
 
 def main_menu():
     title_font = pygame.font.SysFont("comicsans", 70)
+    icon_game = pygame.image.load(os.path.join("assets", "WOS.png"))
+   
     run = True
     while run:
         WIN.blit(BG, (0,0))
