@@ -247,6 +247,7 @@ def main():
     def quitgame():
         pygame.quit()
     def unpause():
+        global game_pause
         game_pause=False
     
     while run:
@@ -289,6 +290,7 @@ def main():
             bullet_sound.play()
             
         if keys[pygame.K_ESCAPE]:
+            global game_pause
             game_pause=True
             gamepause()
         if keys[pygame.K_m]:
