@@ -13,11 +13,13 @@ from pygame import mixer
 
 pygame.mixer.init()
 pygame.font.init()
-WIDTH, HEIGHT = 800, 800
+WIDTH, HEIGHT = 950, 950
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 gameDisplay = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("World of Spaceship")
 game_pause=True
+gameIcon = pygame.image.load(os.path.join("assets", "WOS.png"))
+pygame.display.set_icon(gameIcon)
 
 #Load Images
 arr = os.listdir("assets")
@@ -25,7 +27,7 @@ print(arr)
 RED_SPACE_SHIP = pygame.image.load(os.path.join("assets", "boss.png"))
 GREEN_SPACE_SHIP = pygame.image.load(os.path.join("assets", "creep1.png"))
 BLUE_SPACE_SHIP = pygame.image.load(os.path.join("assets", "creep2.png"))
-
+BOSS_SPACE_SHIP = pygame.image.load(os.path.join("assets", "Fboss.png"))
 #Player
 YELLOW_SPACE_SHIP = pygame.image.load(os.path.join("assets", "player.png"))
 
@@ -34,6 +36,7 @@ RED_LASER = pygame.image.load(os.path.join("assets", "boss_beam.png"))
 GREEN_LASER = pygame.image.load(os.path.join("assets", "grn_beam.png"))
 BLUE_LASER = pygame.image.load(os.path.join("assets", "cyan_beam.png"))
 YELLOW_LASER = pygame.image.load(os.path.join("assets", "yel_beam.png"))
+BOSS_LASER = pygame.image.load(os.path.join("assets", "Boss_ki.png"))
 
 
 #Background
@@ -108,7 +111,7 @@ class Ship:
 
 
 class Player(Ship):
-    def __init__(self, x, y, health=100):
+    def __init__(self, x, y, health=200):
         super().__init__(x, y, health)
         self.ship_img = YELLOW_SPACE_SHIP
         self.laser_img = YELLOW_LASER
@@ -124,7 +127,9 @@ class Player(Ship):
             else:
                 for obj in objs:
                     if laser.collision(obj):
-                        objs.remove(obj)
+                        obj.health -= 75
+                        if obj.health <= 0:
+                            objs.remove(obj)
                         explosion_Sound=mixer.Sound('explosion.wav')
                         explosion_Sound.play()
                         if laser in self.lasers:
@@ -143,16 +148,28 @@ class Enemy(Ship):
     COLOR_MAP = {
                 "red": (RED_SPACE_SHIP, RED_LASER),
                 "green": (GREEN_SPACE_SHIP, GREEN_LASER),
-                "blue": (BLUE_SPACE_SHIP, BLUE_LASER)
+                "blue": (BLUE_SPACE_SHIP, BLUE_LASER),
+                "boss": (BOSS_SPACE_SHIP, BOSS_LASER)
+                }
+    
+    maxhealth = {
+                "red": 125,
+                "green": 50,
+                "blue": 100,
+                "boss" : 180
                 }
 
     def __init__(self, x, y, color, health=100):
+        health = self.maxhealth[color]
         super().__init__(x, y, health)
         self.ship_img, self.laser_img = self.COLOR_MAP[color]
         self.mask = pygame.mask.from_surface(self.ship_img)
+        self.max_health = health
 
     def move(self, vel):
-        self.y += vel
+        self.x += vel[0]
+        self.y += vel[1]
+
 
     def shoot(self):
         if self.cool_down_counter == 0:
@@ -160,6 +177,13 @@ class Enemy(Ship):
             self.lasers.append(laser)
             self.cool_down_counter = 1
 
+    def draw(self, window):
+        super().draw(window)
+        self.healthbar(window)
+
+    def healthbar(self, window):
+        pygame.draw.rect(window, (255,0,0), (self.x, self.y + self.ship_img.get_height() + 10, self.ship_img.get_width(), 10))
+        pygame.draw.rect(window, (0,255,0), (self.x, self.y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self.health/self.max_health), 10))
 
 
 def collide(obj1, obj2):
@@ -177,7 +201,7 @@ def main():
     i=0
     enemies = []
     wave_length = 5
-    enemy_vel = 1
+    enemy_vel = [1, 1]
 
     player_vel = 5
     laser_vel = 5
@@ -268,7 +292,7 @@ def main():
             level += 1
             wave_length += 5
             for i in range(wave_length):
-                enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1500, -100), random.choice(["red", "blue", "green"]))
+                enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1500, -100), random.choice(["red", "blue", "green", "boss"]))
                 enemies.append(enemy)
 
         for event in pygame.event.get():
@@ -298,8 +322,9 @@ def main():
         if keys[pygame.K_n]:
             mixer.music.unpause()   
            
-
         for enemy in enemies[:]:
+            if not (0 <= enemy.x + enemy_vel[0] <= WIDTH):
+                enemy_vel[0] *= -1
             enemy.move(enemy_vel)
             enemy.move_lasers(laser_vel, player)
             
@@ -318,13 +343,12 @@ def main():
 
 def main_menu():
     title_font = pygame.font.SysFont("comicsans", 70)
-    icon_game = pygame.image.load(os.path.join("assets", "WOS.png"))
    
     run = True
     while run:
         WIN.blit(BG, (0,0))
-        title_label = title_font.render("Press the mouse to begin...", 1, (255,255,255))
-        WIN.blit(title_label, (WIDTH/2 - title_label.get_width()/2, 350))
+        title_label = pygame.image.load(os.path.join("assets", "WOS.png"))
+        WIN.blit(title_label, (WIDTH/2 - title_label.get_width()/2, 200))
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
